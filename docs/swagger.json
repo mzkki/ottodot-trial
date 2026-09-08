@@ -1,0 +1,338 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API documentation for OttoDot Trial Class Booking \u0026 Payment System.",
+        "title": "OttoDot Trial Booking API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/bookings": {
+            "post": {
+                "description": "Creates a pending booking for a student and trial class, returning the payment form",
+                "consumes": [
+                    "application/x-www-form-urlencoded",
+                    "application/json"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Create a trial class booking",
+                "parameters": [
+                    {
+                        "description": "Booking payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_booking.CreateBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML booking_form partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bookings/{id}/pay": {
+            "post": {
+                "description": "Processes payment with pessimistic row-locking concurrency guard and deterministic simulation toggle",
+                "consumes": [
+                    "application/x-www-form-urlencoded",
+                    "application/json"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Process booking payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "\"d0000000-0000-0000-0000-000000000001\"",
+                        "description": "Booking UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payment simulation options",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_booking.ProcessPaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML booking_status partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bookings/{id}/status": {
+            "get": {
+                "description": "Returns the current booking status and payment attempt history (HTMX partial)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Get booking status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "\"d0000000-0000-0000-0000-000000000001\"",
+                        "description": "Booking UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML booking_status partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/classes": {
+            "get": {
+                "description": "Returns class list enriched with real-time spot availability and booking status for a student (HTMX partial)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Get available trial classes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "\"b0000000-0000-0000-0000-000000000001\"",
+                        "description": "Student UUID",
+                        "name": "student_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML class_list partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/classes/all": {
+            "get": {
+                "description": "Returns all trial classes in JSON format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all trial classes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns system health status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/roster": {
+            "get": {
+                "description": "Returns confirmed bookings roster for a trial class (HTMX partial)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get class roster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "\"c0000000-0000-0000-0000-000000000001\"",
+                        "description": "Trial Class UUID",
+                        "name": "class_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML roster_table partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/students": {
+            "get": {
+                "description": "Returns student list options for a selected parent (HTMX partial)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Get students by parent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "\"a0000000-0000-0000-0000-000000000001\"",
+                        "description": "Parent UUID",
+                        "name": "parent_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML student_select partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "HTML error partial",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "internal_delivery_http_booking.CreateBookingRequest": {
+            "type": "object",
+            "required": [
+                "student_id",
+                "trial_class_id"
+            ],
+            "properties": {
+                "student_id": {
+                    "type": "string",
+                    "example": "b0000000-0000-0000-0000-000000000001"
+                },
+                "trial_class_id": {
+                    "type": "string",
+                    "example": "c0000000-0000-0000-0000-000000000001"
+                }
+            }
+        },
+        "internal_delivery_http_booking.ProcessPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "simulate_failure": {
+                    "type": "string",
+                    "example": "false"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

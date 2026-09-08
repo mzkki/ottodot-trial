@@ -1,0 +1,71 @@
+{{define "booking_form"}}
+<div class="bg-white rounded-xl shadow-sm border border-indigo-200 p-6">
+    <div class="flex items-center gap-2 mb-4">
+        <span class="bg-yellow-100 text-yellow-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+        <h2 class="text-lg font-semibold text-gray-800">Confirm & Pay</h2>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+                <span class="text-gray-500">Student</span>
+                <p class="font-medium text-gray-800">{{.Booking.Student.Name}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Class</span>
+                <p class="font-medium text-gray-800">{{.Booking.TrialClass.Title}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Instructor</span>
+                <p class="font-medium text-gray-800">{{.Booking.TrialClass.Instructor}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Status</span>
+                <p class="font-medium text-yellow-600">⏳ Pending Payment</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-indigo-50 rounded-lg p-4 mb-4">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Trial Class Fee</span>
+            <span class="text-lg font-bold text-indigo-700">$500.00</span>
+        </div>
+    </div>
+
+    <form hx-post="/api/v1/bookings/{{.Booking.ID}}/pay"
+          hx-target="#booking-result"
+          hx-swap="innerHTML"
+          hx-indicator="#payment-spinner">
+
+        <!-- Payment Simulation Toggle -->
+        <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <label class="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">Payment Simulation</label>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="simulate_failure" value="false" checked
+                           class="text-indigo-600 focus:ring-indigo-500">
+                    <span class="text-sm text-gray-700">✅ Simulate Success</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="simulate_failure" value="true"
+                           class="text-red-600 focus:ring-red-500">
+                    <span class="text-sm text-gray-700">❌ Simulate Failure</span>
+                </label>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
+            💳 Process Payment
+            <span id="payment-spinner" class="htmx-indicator">
+                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </span>
+        </button>
+        <p class="text-xs text-gray-400 mt-2 text-center">Payment takes ~2 seconds (simulated gateway delay)</p>
+    </form>
+</div>
+{{end}}

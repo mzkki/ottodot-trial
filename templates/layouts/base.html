@@ -1,0 +1,50 @@
+{{define "head"}}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} — OttoDot Trial</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline-flex; }
+        .htmx-request.htmx-indicator { display: inline-flex; }
+    </style>
+</head>
+{{end}}
+
+{{define "navbar"}}
+<nav class="bg-indigo-600 shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/" class="text-white font-bold text-xl tracking-tight">🎓 OttoDot Trial</a>
+        <div class="flex gap-4">
+            <a href="/" class="text-indigo-100 hover:text-white text-sm font-medium transition">Book a Class</a>
+            <a href="/admin/roster" class="text-indigo-100 hover:text-white text-sm font-medium transition">Admin Roster</a>
+        </div>
+    </div>
+</nav>
+{{end}}
+
+{{define "error"}}
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body class="bg-gray-50 min-h-screen">
+    {{template "navbar" .}}
+    <main class="max-w-2xl mx-auto px-4 py-16">
+        <div class="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+            <div class="text-4xl mb-3">😵</div>
+            <h1 class="text-xl font-bold text-red-800 mb-2">Something went wrong</h1>
+            <p class="text-red-600">{{.Message}}</p>
+            <a href="/" class="mt-4 inline-block text-sm text-indigo-600 hover:underline">← Back to Home</a>
+        </div>
+    </main>
+</body>
+</html>
+{{end}}
+
+{{define "error_partial"}}
+<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+    <p class="text-red-700 font-medium">⚠️ {{.Message}}</p>
+</div>
+{{end}}

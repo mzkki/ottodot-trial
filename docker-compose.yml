@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ottodot_trial_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-ottodot}
+      POSTGRES_PASSWORD: ${DB_PASS:-ottodot123}
+      POSTGRES_DB: ${DB_NAME:-db_ottodot_trial}
+      POSTGRES_MULTIPLE_DATABASES: ${DB_TEST_NAME:-db_ottodot_trial_test}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ottodot} -d ${DB_NAME:-db_ottodot_trial}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

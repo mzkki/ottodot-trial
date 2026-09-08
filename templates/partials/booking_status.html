@@ -1,0 +1,136 @@
+{{define "booking_status"}}
+<div class="bg-white rounded-xl shadow-sm border p-6
+    {{if eq (printf "%s" .Booking.Status) "confirmed"}}border-green-200{{end}}
+    {{if eq (printf "%s" .Booking.Status) "payment_failed"}}border-red-200{{end}}
+    {{if eq (printf "%s" .Booking.Status) "cancelled"}}border-gray-300{{end}}
+    {{if eq (printf "%s" .Booking.Status) "pending"}}border-yellow-200{{end}}
+">
+    <!-- Status Header -->
+    <div class="text-center mb-6">
+        {{if eq (printf "%s" .Booking.Status) "confirmed"}}
+        <div class="text-5xl mb-2">🎉</div>
+        <h2 class="text-2xl font-bold text-green-700">Booking Confirmed!</h2>
+        <p class="text-green-600 text-sm mt-1">Your trial class spot is secured.</p>
+        {{end}}
+
+        {{if eq (printf "%s" .Booking.Status) "payment_failed"}}
+        <div class="text-5xl mb-2">😔</div>
+        <h2 class="text-2xl font-bold text-red-700">Payment Failed</h2>
+        <p class="text-red-600 text-sm mt-1">{{.ErrorMessage}}</p>
+        {{end}}
+
+        {{if eq (printf "%s" .Booking.Status) "cancelled"}}
+        <div class="text-5xl mb-2">🚫</div>
+        <h2 class="text-2xl font-bold text-gray-700">Booking Cancelled</h2>
+        <p class="text-gray-600 text-sm mt-1">{{.ErrorMessage}}</p>
+        {{end}}
+
+        {{if eq (printf "%s" .Booking.Status) "pending"}}
+        <div class="text-5xl mb-2">⏳</div>
+        <h2 class="text-2xl font-bold text-yellow-700">Pending Payment</h2>
+        <p class="text-yellow-600 text-sm mt-1">Complete payment to confirm your booking.</p>
+        {{end}}
+    </div>
+
+    <!-- Booking Details -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+                <span class="text-gray-500">Booking ID</span>
+                <p class="font-mono text-xs text-gray-600">{{.Booking.ID}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Status</span>
+                <p class="font-semibold
+                    {{if eq (printf "%s" .Booking.Status) "confirmed"}}text-green-700{{end}}
+                    {{if eq (printf "%s" .Booking.Status) "payment_failed"}}text-red-700{{end}}
+                    {{if eq (printf "%s" .Booking.Status) "cancelled"}}text-gray-700{{end}}
+                    {{if eq (printf "%s" .Booking.Status) "pending"}}text-yellow-700{{end}}
+                ">{{.Booking.Status}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Student</span>
+                <p class="font-medium text-gray-800">{{.Booking.Student.Name}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Class</span>
+                <p class="font-medium text-gray-800">{{.Booking.TrialClass.Title}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Instructor</span>
+                <p class="font-medium text-gray-800">{{.Booking.TrialClass.Instructor}}</p>
+            </div>
+            <div>
+                <span class="text-gray-500">Scheduled</span>
+                <p class="font-medium text-gray-800">{{.Booking.TrialClass.ScheduledAt.Format "Mon, 02 Jan 2006 · 3:04 PM"}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    {{if .Booking.PaymentAttempts}}
+    <div class="mb-4">
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Payment History</h3>
+        <div class="space-y-2">
+            {{range .Booking.PaymentAttempts}}
+            <div class="flex items-center justify-between text-sm p-2 rounded
+                {{if eq .Status "success"}}bg-green-50{{else}}bg-red-50{{end}}">
+                <div class="flex items-center gap-2">
+                    {{if eq .Status "success"}}
+                    <span class="text-green-500">✅</span>
+                    {{else}}
+                    <span class="text-red-500">❌</span>
+                    {{end}}
+                    <span class="text-gray-700">${{printf "%.2f" (divFloat .AmountCents 100)}}</span>
+                </div>
+                <div class="text-xs text-gray-400">
+                    {{if .FailureReason}}<span class="text-red-500">{{.FailureReason}}</span> · {{end}}
+                    {{.CreatedAt.Format "3:04 PM"}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Actions -->
+    <div class="space-y-3">
+        {{if or (eq (printf "%s" .Booking.Status) "pending") (eq (printf "%s" .Booking.Status) "payment_failed")}}
+        <form hx-post="/api/v1/bookings/{{.Booking.ID}}/pay"
+              hx-target="#booking-result"
+              hx-swap="innerHTML"
+              hx-indicator="#pay-spinner"
+              class="w-full">
+            <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <label class="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">Payment Simulation</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                        <input type="radio" name="simulate_failure" value="false" checked class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">✅ Simulate Success</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                        <input type="radio" name="simulate_failure" value="true" class="text-red-600 focus:ring-red-500">
+                        <span class="text-gray-700">❌ Simulate Failure</span>
+                    </label>
+                </div>
+            </div>
+            <button type="submit"
+                    class="w-full {{if eq (printf "%s" .Booking.Status) "pending"}}bg-green-600 hover:bg-green-700{{else}}bg-orange-500 hover:bg-orange-600{{end}} text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                {{if eq (printf "%s" .Booking.Status) "pending"}}💳 Complete Payment{{else}}🔄 Retry Payment{{end}}
+                <span id="pay-spinner" class="htmx-indicator">
+                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
+            </button>
+            <p class="text-xs text-gray-400 mt-1.5 text-center">Payment takes ~2 seconds (simulated gateway delay)</p>
+        </form>
+        {{end}}
+        <a href="/"
+           class="block w-full bg-gray-100 text-gray-700 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-200 transition text-center">
+            ← Book Another Class
+        </a>
+    </div>
+</div>
+{{end}}

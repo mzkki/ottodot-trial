@@ -1,0 +1,73 @@
+{{define "home"}}
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body class="bg-gray-50 min-h-screen">
+    {{template "navbar" .}}
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Book a Trial Class</h1>
+            <p class="text-gray-500 mt-1">Choose your child and pick an available class to get started.</p>
+        </div>
+
+        <!-- Step 1: Select Parent -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                Select Parent
+            </h2>
+            <select name="parent_id"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    hx-get="/api/v1/students"
+                    hx-target="#student-container"
+                    hx-trigger="change"
+                    hx-swap="innerHTML"
+                    hx-indicator="#loading-students"
+                    onchange="document.getElementById('classes-container').innerHTML = '<p class=\'text-gray-400 text-sm\'>Please select a child first.</p>'; document.getElementById('booking-result').innerHTML = '';">
+                <option value="">— Choose a parent —</option>
+                {{range .Parents}}
+                <option value="{{.ID}}">{{.Name}} ({{.Email}})</option>
+                {{end}}
+            </select>
+        </div>
+
+        <!-- Step 2: Select Student -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                Select Child
+                <span id="loading-students" class="htmx-indicator">
+                    <svg class="animate-spin h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
+            </h2>
+            <div id="student-container">
+                <p class="text-gray-400 text-sm">Please select a parent first.</p>
+            </div>
+        </div>
+
+        <!-- Step 3: Available Classes -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                Available Trial Classes
+                <span id="loading-classes" class="htmx-indicator">
+                    <svg class="animate-spin h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
+            </h2>
+            <div id="classes-container">
+                <p class="text-gray-400 text-sm">Please select a child first.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: Booking Result -->
+        <div id="booking-result"></div>
+    </main>
+</body>
+</html>
+{{end}}

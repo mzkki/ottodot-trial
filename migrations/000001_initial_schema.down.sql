@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS payment_attempts;
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS trial_classes;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS parents;

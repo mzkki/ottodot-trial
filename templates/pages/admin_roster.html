@@ -1,0 +1,45 @@
+{{define "admin_roster"}}
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body class="bg-gray-50 min-h-screen">
+    {{template "navbar" .}}
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">📋 Class Roster</h1>
+            <p class="text-gray-500 mt-1">View confirmed students for each trial class.</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select a Trial Class</label>
+            <select name="class_id"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    hx-get="/api/v1/roster"
+                    hx-target="#roster-container"
+                    hx-trigger="change"
+                    hx-swap="innerHTML"
+                    hx-indicator="#loading-roster">
+                <option value="">— Choose a class —</option>
+                {{range .Classes}}
+                <option value="{{.ID}}">{{.Title}} — {{.Instructor}} ({{.ScheduledAt.Format "Mon, 02 Jan 2006 · 3:04 PM"}})</option>
+                {{end}}
+            </select>
+        </div>
+
+        <div class="relative">
+            <span id="loading-roster" class="htmx-indicator absolute top-4 left-1/2 -translate-x-1/2">
+                <svg class="animate-spin h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </span>
+            <div id="roster-container">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-400">
+                    Select a class above to view its roster.
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+{{end}}

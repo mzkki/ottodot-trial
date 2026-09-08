@@ -1,0 +1,230 @@
+basePath: /api/v1
+definitions:
+  internal_delivery_http_booking.CreateBookingRequest:
+    properties:
+      student_id:
+        example: b0000000-0000-0000-0000-000000000001
+        type: string
+      trial_class_id:
+        example: c0000000-0000-0000-0000-000000000001
+        type: string
+    required:
+    - student_id
+    - trial_class_id
+    type: object
+  internal_delivery_http_booking.ProcessPaymentRequest:
+    properties:
+      simulate_failure:
+        example: "false"
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: boolean
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API documentation for OttoDot Trial Class Booking & Payment System.
+  title: OttoDot Trial Booking API
+  version: 1.0.0
+paths:
+  /bookings:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      - application/json
+      description: Creates a pending booking for a student and trial class, returning
+        the payment form
+      parameters:
+      - description: Booking payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_delivery_http_booking.CreateBookingRequest'
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML booking_form partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Create a trial class booking
+      tags:
+      - Booking
+  /bookings/{id}/pay:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      - application/json
+      description: Processes payment with pessimistic row-locking concurrency guard
+        and deterministic simulation toggle
+      parameters:
+      - description: Booking UUID
+        example: '"d0000000-0000-0000-0000-000000000001"'
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payment simulation options
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/internal_delivery_http_booking.ProcessPaymentRequest'
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML booking_status partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Process booking payment
+      tags:
+      - Booking
+  /bookings/{id}/status:
+    get:
+      description: Returns the current booking status and payment attempt history
+        (HTMX partial)
+      parameters:
+      - description: Booking UUID
+        example: '"d0000000-0000-0000-0000-000000000001"'
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML booking_status partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Get booking status
+      tags:
+      - Booking
+  /classes:
+    get:
+      description: Returns class list enriched with real-time spot availability and
+        booking status for a student (HTMX partial)
+      parameters:
+      - description: Student UUID
+        example: '"b0000000-0000-0000-0000-000000000001"'
+        format: uuid
+        in: query
+        name: student_id
+        required: true
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML class_list partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Get available trial classes
+      tags:
+      - Booking
+  /classes/all:
+    get:
+      description: Returns all trial classes in JSON format
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all trial classes
+      tags:
+      - Admin
+  /health:
+    get:
+      description: Returns system health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health Check
+      tags:
+      - System
+  /roster:
+    get:
+      description: Returns confirmed bookings roster for a trial class (HTMX partial)
+      parameters:
+      - description: Trial Class UUID
+        example: '"c0000000-0000-0000-0000-000000000001"'
+        format: uuid
+        in: query
+        name: class_id
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML roster_table partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Get class roster
+      tags:
+      - Admin
+  /students:
+    get:
+      description: Returns student list options for a selected parent (HTMX partial)
+      parameters:
+      - description: Parent UUID
+        example: '"a0000000-0000-0000-0000-000000000001"'
+        format: uuid
+        in: query
+        name: parent_id
+        required: true
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML student_select partial
+          schema:
+            type: string
+        "400":
+          description: HTML error partial
+          schema:
+            type: string
+      summary: Get students by parent
+      tags:
+      - Booking
+swagger: "2.0"
